@@ -1,0 +1,3 @@
+display_name: "Customs CI/PL Header/Footer"
+short_description: "Updates CI/PL template headers and container/SKU footers from DFCR and warehouse files."
+default_prompt: "Update the CI/PL template header and footer using the warehouse files, DFCR PDF, and PT-container mapping, preserving the original template format."
