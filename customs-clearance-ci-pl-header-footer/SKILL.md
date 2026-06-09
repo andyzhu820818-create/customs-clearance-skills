@@ -92,15 +92,19 @@ CI page:
 - `ETD`: use DFCR ETD.
 - `SAILING ON OR ABOUT`: equal to DFCR ETD.
 - `TOTAL GROSS WEIGHT`: use DFCR gross weight directly; do not calculate it from warehouse Excel.
-- `TOTAL NET WEIGHT`: do not fill.
+- `TOTAL NET WEIGHT`: do not actively fill and do not delete an existing template value. If the template already contains a net-weight value, preserve the text and change that cell's font color to red so it is visibly marked for human review.
 - `SHIP DATE`: only update when the user has provided the intended rule or source. If not provided, preserve template value or ask briefly.
+- `INVOICE DATE`: set to one calendar day after `SHIP DATE`; keep the template's date text format, for example `JUN 08, 2026`.
+- When updating cells that contain multiple lines such as `INVOICE DATE` / `INVOICE No.`, preserve the existing rich-text styling and per-line font sizes. Do not flatten the cell into one uniform font size; edit only the needed text and keep the template's original font-size differences.
 
 PL page:
 
 - In the header summary, list all PO numbers contained in the ordered PTs.
 - Preserve first occurrence order by DFCR container/PT order.
 - If a PO appears more than once, include it only once.
-- Update `INVOICE NO.`, `INVOICE DATE`, `ETD`, and `PORT OF DISCHARGE` only when their source values are available.
+- Preserve `INVOICE NO.` unless the user explicitly provides a new invoice number.
+- Set `INVOICE DATE` to one calendar day after `SHIP DATE`.
+- Update `ETD` and `PORT OF DISCHARGE` only when their source values are available.
 
 ## Footer Callout Rules
 
@@ -113,12 +117,14 @@ CONTAINER/SEAL NO.:
 SKU# <prepack sku>: <n> pcs were loaded into container <container>; the remaining <n> pcs were loaded into container <container>.
 ```
 
-Use prepack SKU for the footer callout unless the user's template clearly uses another SKU field.
+Use the warehouse file's main/prepack SKU column for the footer callout unless the user's template clearly uses another SKU field.
+If a source row has both a main/prepack SKU and a sub SKU, record only the main/prepack SKU in the callout.
+Use the sub SKU only when the main/prepack SKU for that product row is blank.
 
 For each container:
 
 1. Find the PT assigned to that container through the seal mapping.
-2. Collect the prepack SKUs from that PT's warehouse file in source order.
+2. Collect SKUs from that PT's warehouse file in source order, using main/prepack SKU first and falling back to sub SKU only when main/prepack SKU is blank.
 3. Remove repeated prepack SKUs within the same container callout.
 4. Write containers in DFCR order.
 
