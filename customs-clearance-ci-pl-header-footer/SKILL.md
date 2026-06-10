@@ -18,6 +18,32 @@ Use this skill when the user asks to update a commercial invoice / packing list 
 
 Default to editing a copy of the supplied template. Preserve the original workbook.
 
+## Scripted Workflow
+
+Prefer the bundled script for repeatable jobs instead of rewriting ad-hoc code:
+
+```bash
+python scripts/update_ci_pl_header_footer.py \
+  --dfcr DFCR_NGB461001.pdf \
+  --mapping mapping.json \
+  --warehouse "仓库4-PT27045 ...xls" "仓库4-PT27046 ...xls" \
+  --vendor-template VENDOR-template.xlsx \
+  --factory-template FACTORY-template.xlsx \
+  --output-dir <destination-folder> \
+  --summary-json summary.json
+```
+
+`mapping.json` must be a UTF-8 JSON array in DFCR-independent form:
+
+```json
+[
+  {"container": "ZCSU6676780", "seal": "A4260019073", "pt": "PT27045"},
+  {"container": "JXLU6383951", "seal": "A4260019080", "pt": "PT27046"}
+]
+```
+
+The script reads DFCR container order and reorders the mapping automatically. It converts `.xls` warehouse files through Excel COM, updates only header/footer callouts, preserves invoice-cell rich-text sizes via character-level Excel COM edits, marks invoice-number values red by default, preserves existing `TOTAL NET WEIGHT` text while coloring it red, and prints a JSON summary for verification.
+
 For the workflow described by this skill, update only:
 
 - CI header shipment and invoice fields
@@ -96,6 +122,7 @@ CI page:
 - `SHIP DATE`: only update when the user has provided the intended rule or source. If not provided, preserve template value or ask briefly.
 - `INVOICE DATE`: set to one calendar day after `SHIP DATE`; keep the template's date text format, for example `JUN 08, 2026`.
 - When updating cells that contain multiple lines such as `INVOICE DATE` / `INVOICE No.`, preserve the existing rich-text styling and per-line font sizes. Do not flatten the cell into one uniform font size; edit only the needed text and keep the template's original font-size differences.
+- For early/draft work where the invoice number is not final, keep the invoice number placeholder text in the template but mark only the invoice-number value in red. Preserve the existing `INVOICE No.` label style and the existing font size for that line.
 
 PL page:
 
