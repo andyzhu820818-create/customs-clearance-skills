@@ -73,7 +73,7 @@ def read_pdf(pdf_path: Path) -> dict[str, Any]:
 
     container_match = re.search(r"CONTAINER#:(.*?)SEAL#:(.*?)(?:DRAFT|$)", flat, re.I)
     containers = re.findall(r"\b[A-Z]{4}\d{7}\b", container_match.group(1)) if container_match else []
-    seals = re.findall(r"\b[A-Z]?\d{8,12}\b|\b[A-Z]{4}\d{5}\b", container_match.group(2)) if container_match else []
+    seals = re.findall(r"\b[A-Z]\d{7,12}\b|\b\d{8,12}\b|\b[A-Z]{4}\d{5}\b", container_match.group(2)) if container_match else []
     # Keep only likely seal tokens and preserve order.
     seals = [x for x in seals if not re.match(r"^[A-Z]{4}\d{7}$", x)]
 
@@ -120,6 +120,7 @@ def read_pdf(pdf_path: Path) -> dict[str, Any]:
         "etd": etd,
         "ship_date": excel_date(ship_dt),
         "invoice_date": excel_date(ship_dt + timedelta(days=1)),
+        "invoice_date_yyyymmdd": (ship_dt + timedelta(days=1)).strftime("%Y%m%d"),
         "destination": destination,
     }
 
@@ -353,11 +354,18 @@ try {{
       $ws = $wb.Worksheets.Item('CI ')
       $cell = $ws.Range('H2')
       $text = [string]$cell.Value2
+      $lineBreak = $text.IndexOf("`n")
       $dateMatch = [regex]::Match($text, '(?i)(INVOICE DATE:\s*)((?:JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER|JAN|FEB|MAR|APR|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s+\d{{1,2}},\s+\d{{4}})')
       if ($dateMatch.Success) {{
         $start = $dateMatch.Groups[2].Index + 1
         $len = $dateMatch.Groups[2].Length
         $cell.Characters($start, $len).Text = $item.invoice_date
+      }}
+      $text = [string]$cell.Value2
+      $lineBreak = $text.IndexOf("`n")
+      if ($lineBreak -ge 0) {{
+        $cell.Characters(1, $lineBreak).Font.Size = 14
+        $cell.Characters($lineBreak + 2, $text.Length - $lineBreak - 1).Font.Size = 16
       }}
       if ($item.mark_invoice_red) {{
         $invMatch = [regex]::Match([string]$cell.Value2, '(?im)(INVOICE\s*No\.?:\s*)(.+)$')
@@ -417,7 +425,7 @@ def main() -> int:
         fcr_match = re.search(r"NGB\d+", args.dfcr.name, re.I)
         if fcr_match:
             out_name = re.sub(r"NGB\d+", fcr_match.group(0).upper(), out_name, flags=re.I)
-        out_name = re.sub(r"20\d{6}", pdf["invoice_date"].replace(",", "").replace(" ", ""), out_name, count=1)
+        out_name = re.sub(r"20\d{6}", pdf["invoice_date_yyyymmdd"], out_name, count=1)
         output = args.output_dir / out_name
         invoice_no = update_workbook(template, output, pdf, ordered, callout)
         invoices[str(output)] = invoice_no
