@@ -130,6 +130,7 @@ PL page:
 - Preserve first occurrence order by DFCR container/PT order.
 - If a PO appears more than once, include it only once.
 - Preserve `INVOICE NO.` unless the user explicitly provides a new invoice number.
+- For early/draft work where the invoice number is not final, mark only the `INVOICE NO.` value in red on the PL page as well; keep the label black.
 - Set `INVOICE DATE` to one calendar day after `SHIP DATE`.
 - Update `ETD` and `PORT OF DISCHARGE` only when their source values are available.
 

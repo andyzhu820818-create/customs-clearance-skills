@@ -374,6 +374,14 @@ try {{
           $len = $invMatch.Groups[2].Length
           $cell.Characters($start, $len).Font.Color = 255
         }}
+        $pl = $wb.Worksheets.Item('PL')
+        $plCell = $pl.Range('A4')
+        $plInvMatch = [regex]::Match([string]$plCell.Value2, '(?im)(INVOICE\s*NO\.?:\s*)(.+)$')
+        if ($plInvMatch.Success) {{
+          $start = $plInvMatch.Groups[2].Index + 1
+          $len = $plInvMatch.Groups[2].Length
+          $plCell.Characters($start, $len).Font.Color = 255
+        }}
       }}
       $wb.Save()
     }} finally {{
