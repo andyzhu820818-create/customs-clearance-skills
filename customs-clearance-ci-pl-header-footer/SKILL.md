@@ -122,7 +122,7 @@ CI page:
 - `SHIP DATE`: only update when the user has provided the intended rule or source. If not provided, preserve template value or ask briefly.
 - `INVOICE DATE`: set to one calendar day after `SHIP DATE`; keep the template's date text format, for example `JUN 08, 2026`.
 - When updating cells that contain multiple lines such as `INVOICE DATE` / `INVOICE No.`, preserve the existing rich-text styling and per-line font sizes. Do not flatten the cell into one uniform font size; edit only the needed text and keep the template's original font-size differences.
-- For early/draft work where the invoice number is not final, keep the invoice number placeholder text in the template but mark only the invoice-number value in red. Preserve the existing `INVOICE No.` label style and the existing font size for that line.
+- For early/draft work where the invoice number is not final, replace the invoice-number value's last three characters with uppercase `XXX` and mark only that value in red. Preserve the existing `INVOICE No.` label style and the existing font size for that line.
 
 PL page:
 
@@ -130,7 +130,7 @@ PL page:
 - Preserve first occurrence order by DFCR container/PT order.
 - If a PO appears more than once, include it only once.
 - Preserve `INVOICE NO.` unless the user explicitly provides a new invoice number.
-- For early/draft work where the invoice number is not final, mark only the `INVOICE NO.` value in red on the PL page as well; keep the label black.
+- For early/draft work where the invoice number is not final, replace the `INVOICE NO.` value's last three characters with uppercase `XXX` on the PL page as well, then mark only that value in red; keep the label black.
 - Set `INVOICE DATE` to one calendar day after `SHIP DATE`.
 - Update `ETD` and `PORT OF DISCHARGE` only when their source values are available.
 

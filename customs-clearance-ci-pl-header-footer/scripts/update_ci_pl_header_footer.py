@@ -276,6 +276,10 @@ def find_invoice_no(wb) -> str:
     return match.group(1) if match else "ZSEFP-2600XXX"
 
 
+def mask_invoice_no(invoice_no: str) -> str:
+    return re.sub(r"[A-Z0-9]{3}$", "XXX", invoice_no.upper())
+
+
 def red_font_like(cell) -> Font:
     return Font(
         name=cell.font.name,
@@ -293,6 +297,7 @@ def update_workbook(template: Path, output: Path, pdf: dict[str, Any], ordered: 
     shutil.copy2(template, output)
     wb = load_workbook(output)
     invoice_no = find_invoice_no(wb)
+    display_invoice_no = mask_invoice_no(invoice_no)
     ci = wb["CI "]
     pl = wb["PL"]
 
@@ -327,7 +332,7 @@ def update_workbook(template: Path, output: Path, pdf: dict[str, Any], ordered: 
 
     pl["A4"] = (
         f"CUSTOMER PO NO.: {unique_po_text(ordered)}.\n"
-        f"INVOICE NO.: {invoice_no}\n"
+        f"INVOICE NO.: {display_invoice_no}\n"
         f"INVOICE DATE: {pdf['invoice_date']}                                                                                                               \n"
         f"SHIPPING METHOD: BY SEA                                                                                                                                                                                               ETD: {pdf['etd']}                                                                                                                                                                                        \n"
         f"PORT OF DISCHARGE: {pdf['destination']}\n"
@@ -378,7 +383,9 @@ try {{
         $invMatch = [regex]::Match([string]$cell.Value2, '(?im)(INVOICE\s*No\.?:\s*)(.+)$')
         if ($invMatch.Success) {{
           $start = $invMatch.Groups[2].Index + 1
-          $len = $invMatch.Groups[2].Length
+          $masked = [regex]::Replace($invMatch.Groups[2].Value.ToUpper(), '[A-Z0-9]{{3}}$', 'XXX')
+          $cell.Characters($start, $invMatch.Groups[2].Length).Text = $masked
+          $len = $masked.Length
           $cell.Characters($start, $len).Font.Color = 255
         }}
         $pl = $wb.Worksheets.Item('PL')
@@ -386,7 +393,9 @@ try {{
         $plInvMatch = [regex]::Match([string]$plCell.Value2, '(?im)(INVOICE\s*NO\.?:\s*)(.+)$')
         if ($plInvMatch.Success) {{
           $start = $plInvMatch.Groups[2].Index + 1
-          $len = $plInvMatch.Groups[2].Length
+          $masked = [regex]::Replace($plInvMatch.Groups[2].Value.ToUpper(), '[A-Z0-9]{{3}}$', 'XXX')
+          $plCell.Characters($start, $plInvMatch.Groups[2].Length).Text = $masked
+          $len = $masked.Length
           $plCell.Characters($start, $len).Font.Color = 255
         }}
       }}
@@ -437,6 +446,13 @@ def main() -> int:
     invoices = {}
     for template in templates:
         out_name = template.name
+        template_wb = load_workbook(template, read_only=True, data_only=False)
+        try:
+            template_invoice_no = find_invoice_no(template_wb)
+        finally:
+            template_wb.close()
+        if not args.no_mark_invoice_red:
+            out_name = re.sub(re.escape(template_invoice_no), mask_invoice_no(template_invoice_no), out_name, flags=re.I)
         fcr_match = re.search(r"NGB\d+", args.dfcr.name, re.I)
         if fcr_match:
             out_name = re.sub(r"NGB\d+", fcr_match.group(0).upper(), out_name, flags=re.I)
