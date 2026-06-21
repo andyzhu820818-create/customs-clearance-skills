@@ -301,17 +301,24 @@ def update_workbook(template: Path, output: Path, pdf: dict[str, Any], ordered: 
     ci["J12"] = f"TOTAL GROSS WEIGHT:\n{pdf['gross_weight']}"
     if ci["H12"].value:
         ci["H12"].font = red_font_like(ci["H12"])
-    ci["E16"] = "CONTAINER/SEAL NO.:\n" + "\n".join(
+
+    # Vendor and factory templates can place this header block on different rows.
+    if isinstance(ci["E14"].value, str) and ci["E14"].value.startswith("CONTAINER/SEAL NO.:"):
+        container_cell, destination_cell, vessel_cell, sailing_cell = "E14", "F14", "E16", "F16"
+    else:
+        container_cell, destination_cell, vessel_cell, sailing_cell = "E16", "F16", "E18", "F18"
+
+    ci[container_cell] = "CONTAINER/SEAL NO.:\n" + "\n".join(
         f"{item['container']}/{item['seal']}{';' if idx < len(ordered)-1 else '.'}"
         for idx, item in enumerate(ordered)
     )
-    ci["F16"] = f"FINAL DESTINATION\n{pdf['destination']}"
-    ci["E18"] = f"VESSEL: \n{pdf['vessel']}"
-    ci["F18"] = f"SAILING ON OR ABOUT :\n{pdf['etd']}"
+    ci[destination_cell] = f"FINAL DESTINATION\n{pdf['destination']}"
+    ci[vessel_cell] = f"VESSEL: \n{pdf['vessel']}"
+    ci[sailing_cell] = f"SAILING ON OR ABOUT :\n{pdf['etd']}"
 
     for row in ci.iter_rows():
         for cell in row:
-            if isinstance(cell.value, str) and cell.value.startswith("CONTAINER/SEAL NO.:") and cell.coordinate != "E16":
+            if isinstance(cell.value, str) and cell.value.startswith("CONTAINER/SEAL NO.:") and cell.coordinate != container_cell:
                 cell.value = callout
                 cell.alignment = cell.alignment.copy(wrap_text=True, vertical="top")
                 ci.row_dimensions[cell.row].height = max(ci.row_dimensions[cell.row].height or 0, 88)
