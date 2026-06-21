@@ -206,6 +206,7 @@ def read_pt_file(path: Path) -> dict[str, Any]:
     skus: list[str] = []
     pos: list[str] = []
     qty_by_sku: dict[str, int] = {}
+    active_main_sku = ""
     for row in range(9, ws.max_row + 1):
         if ws.cell(row, 1).value == "总计":
             break
@@ -214,7 +215,16 @@ def read_pt_file(path: Path) -> dict[str, Any]:
         po = compact(ws.cell(row, 17).value)
         if po and po not in pos:
             pos.append(po)
-        sku = compact(ws.cell(row, 18).value) or compact(ws.cell(row, 19).value)
+        main_sku = compact(ws.cell(row, 18).value)
+        child_sku = compact(ws.cell(row, 19).value)
+        if main_sku:
+            active_main_sku = main_sku
+            sku = main_sku
+        elif active_main_sku and not po:
+            sku = active_main_sku
+        else:
+            active_main_sku = ""
+            sku = child_sku
         if sku and sku not in skus:
             skus.append(sku)
         qty = ws.cell(row, 22).value

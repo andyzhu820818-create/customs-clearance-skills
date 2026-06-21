@@ -147,6 +147,7 @@ SKU# <prepack sku>: <n> pcs were loaded into container <container>; the remainin
 
 Use the warehouse file's main/prepack SKU column for the footer callout unless the user's template clearly uses another SKU field.
 If a source row has both a main/prepack SKU and a sub SKU, record only the main/prepack SKU in the callout.
+If following rows belong to the same main/prepack SKU group and their main/prepack SKU cell is blank, continue using the previous main/prepack SKU; do not list child/sub SKUs from those continuation rows.
 Use the sub SKU only when the main/prepack SKU for that product row is blank.
 
 For each container:
