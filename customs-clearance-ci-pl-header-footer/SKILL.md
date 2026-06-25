@@ -175,6 +175,7 @@ For more than two containers, keep the same style but list each container and qu
 - Use Excel/COM or another format-preserving method when the template contains merged cells, print settings, page layout, and precise borders.
 - Preserve merged cells, fonts, borders, alignment, print area, fixed footer sections, banking details, vendor details, and manufacturer details.
 - Set wrap text for long header/footer cells.
+- Vertically center the CI and PL footer `CONTAINER/SEAL NO.` callout cells after updating them.
 - Adjust row height only where needed so longer footer text remains readable.
 - Do not overwrite middle detail rows, formulas, discount lines, banking details, shipping mark, signatures, or fixed legal text unless specifically instructed.
 

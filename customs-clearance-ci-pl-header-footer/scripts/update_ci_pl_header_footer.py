@@ -335,7 +335,7 @@ def update_workbook(template: Path, output: Path, pdf: dict[str, Any], ordered: 
         for cell in row:
             if isinstance(cell.value, str) and cell.value.startswith("CONTAINER/SEAL NO.:") and cell.coordinate != container_cell:
                 cell.value = callout
-                cell.alignment = cell.alignment.copy(wrap_text=True, vertical="top")
+                cell.alignment = cell.alignment.copy(wrap_text=True, vertical="center")
                 ci.row_dimensions[cell.row].height = max(ci.row_dimensions[cell.row].height or 0, 88)
                 if cell.row + 1 <= ci.max_row:
                     ci.row_dimensions[cell.row + 1].height = max(ci.row_dimensions[cell.row + 1].height or 0, 50)
@@ -352,7 +352,7 @@ def update_workbook(template: Path, output: Path, pdf: dict[str, Any], ordered: 
         for cell in row:
             if isinstance(cell.value, str) and cell.value.startswith("CONTAINER/SEAL NO.:"):
                 cell.value = callout
-                cell.alignment = cell.alignment.copy(wrap_text=True, vertical="top")
+                cell.alignment = cell.alignment.copy(wrap_text=True, vertical="center")
                 pl.row_dimensions[cell.row].height = max(pl.row_dimensions[cell.row].height or 0, 88)
 
     wb.save(output)
