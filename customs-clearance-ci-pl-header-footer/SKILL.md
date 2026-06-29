@@ -172,6 +172,7 @@ For more than two containers, keep the same style but list each container and qu
 ## Excel Editing Rules
 
 - Work on a copied output workbook, not the template.
+- Use the generation date (`YYYYMMDD`) for the output workbook filename date; do not use `SHIP DATE` or `INVOICE DATE` for the filename date.
 - Use Excel/COM or another format-preserving method when the template contains merged cells, print settings, page layout, and precise borders.
 - Preserve merged cells, fonts, borders, alignment, print area, fixed footer sections, banking details, vendor details, and manufacturer details.
 - Set wrap text for long header/footer cells.

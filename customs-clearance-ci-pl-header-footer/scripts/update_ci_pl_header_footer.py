@@ -451,6 +451,7 @@ def main() -> int:
     warehouse_by_pt = prepare_warehouse_files(args.warehouse, args.work_dir)
     ordered = ordered_container_data(pdf, mapping, warehouse_by_pt)
     callout = build_callout(ordered)
+    filename_date_yyyymmdd = datetime.now().strftime("%Y%m%d")
 
     outputs = []
     invoices = {}
@@ -466,7 +467,7 @@ def main() -> int:
         fcr_match = re.search(r"NGB\d+", args.dfcr.name, re.I)
         if fcr_match:
             out_name = re.sub(r"NGB\d+", fcr_match.group(0).upper(), out_name, flags=re.I)
-        out_name = re.sub(r"20\d{6}", pdf["invoice_date_yyyymmdd"], out_name, count=1)
+        out_name = re.sub(r"20\d{6}", filename_date_yyyymmdd, out_name, count=1)
         output = args.output_dir / out_name
         invoice_no = update_workbook(template, output, pdf, ordered, callout)
         invoices[str(output)] = invoice_no
@@ -480,6 +481,7 @@ def main() -> int:
         "order": [{"container": x["container"], "seal": x["seal"], "pt": x["pt"]} for x in ordered],
         "callout": callout,
         "invoice_numbers": invoices,
+        "filename_date_yyyymmdd": filename_date_yyyymmdd,
     }
     text = json.dumps(summary, ensure_ascii=False, indent=2)
     if args.summary_json:
