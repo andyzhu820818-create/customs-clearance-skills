@@ -377,7 +377,7 @@ try {{
       $cell = $ws.Range('H2')
       $text = [string]$cell.Value2
       $lineBreak = $text.IndexOf("`n")
-      $dateMatch = [regex]::Match($text, '(?i)(INVOICE DATE:\s*)((?:JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER|JAN|FEB|MAR|APR|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s+\d{{1,2}},\s+\d{{4}})')
+      $dateMatch = [regex]::Match($text, '(?i)(INVOICE DATE:\s*)((?:JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER|JAN|FEB|MAR|APR|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s+\d{{1,2}},\s*\d{{4}})')
       if ($dateMatch.Success) {{
         $start = $dateMatch.Groups[2].Index + 1
         $len = $dateMatch.Groups[2].Length
