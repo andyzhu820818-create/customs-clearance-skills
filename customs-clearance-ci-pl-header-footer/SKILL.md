@@ -114,6 +114,7 @@ PT27081
 CI page:
 
 - `CONTAINER/SEAL NO.`: write container/seal pairs in DFCR order, using the template's line style.
+- `FINAL DESTINATION`: use DFCR `PLACE OF DELIVERY`, not `PORT OF DISCHARGE`.
 - `VESSEL`: use vessel and voyage from DFCR.
 - `ETD`: use DFCR ETD.
 - `SAILING ON OR ABOUT`: equal to DFCR ETD.
@@ -132,7 +133,7 @@ PL page:
 - Preserve `INVOICE NO.` unless the user explicitly provides a new invoice number.
 - For early/draft work where the invoice number is not final, replace the `INVOICE NO.` value's last three characters with uppercase `XXX` on the PL page as well, then mark only that value in red; keep the label black.
 - Set `INVOICE DATE` to one calendar day after `SHIP DATE`.
-- Update `ETD` and `PORT OF DISCHARGE` only when their source values are available.
+- Update `ETD` and `PORT OF DISCHARGE` only when their source values are available; `PORT OF DISCHARGE` remains separate from CI `FINAL DESTINATION`.
 
 ## Footer Callout Rules
 

@@ -106,10 +106,17 @@ def read_pdf(pdf_path: Path) -> dict[str, Any]:
     if ship_dt is None:
         raise RuntimeError("Could not determine SHIP DATE / cargo received date from DFCR PDF")
 
-    destination = ""
-    dest_match = re.search(r"PORT OF DISCHARGE\s+([A-Z ]+,\s*[A-Z]{2})\s+PLACE OF DELIVERY", flat)
-    if dest_match:
-        destination = norm(dest_match.group(1))
+    port_of_discharge = ""
+    pod_match = re.search(r"PORT OF DISCHARGE\s+([A-Z ]+,\s*[A-Z]{2})\s+PLACE OF DELIVERY", flat)
+    if pod_match:
+        port_of_discharge = norm(pod_match.group(1))
+
+    place_of_delivery = ""
+    delivery_match = re.search(r"PLACE OF DELIVERY\s+([A-Z ]+,\s*[A-Z]{2})\s+DESCRIPTION OF PACKAGES", flat)
+    if not delivery_match:
+        delivery_match = re.search(r"PLACE OF DELIVERY\s+([A-Z ]+,\s*[A-Z]{2})", flat)
+    if delivery_match:
+        place_of_delivery = norm(delivery_match.group(1))
 
     return {
         "containers": containers,
@@ -121,7 +128,9 @@ def read_pdf(pdf_path: Path) -> dict[str, Any]:
         "ship_date": excel_date(ship_dt),
         "invoice_date": excel_date(ship_dt + timedelta(days=1)),
         "invoice_date_yyyymmdd": (ship_dt + timedelta(days=1)).strftime("%Y%m%d"),
-        "destination": destination,
+        "port_of_discharge": port_of_discharge,
+        "place_of_delivery": place_of_delivery,
+        "destination": place_of_delivery or port_of_discharge,
     }
 
 
@@ -345,7 +354,7 @@ def update_workbook(template: Path, output: Path, pdf: dict[str, Any], ordered: 
         f"INVOICE NO.: {display_invoice_no}\n"
         f"INVOICE DATE: {pdf['invoice_date']}                                                                                                               \n"
         f"SHIPPING METHOD: BY SEA                                                                                                                                                                                               ETD: {pdf['etd']}                                                                                                                                                                                        \n"
-        f"PORT OF DISCHARGE: {pdf['destination']}\n"
+        f"PORT OF DISCHARGE: {pdf.get('port_of_discharge') or pdf['destination']}\n"
         "TERMS OF SALES PAYMENT AND DISCOUNT REFERENCE: FOB, FREIGHT COLLECT"
     )
     for row in pl.iter_rows():
